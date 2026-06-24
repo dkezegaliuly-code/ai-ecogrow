@@ -50,7 +50,7 @@ st.subheader("📈 Датчиктердің динамикасы")
 fig_temp = px.line(df, x="Уақыт", y="Температура (°C)", title="Температура өзгерісі")
 st.plotly_chart(fig_temp, use_container_width=True)
 
-fig_hum = px.line(df, x="Уақыт", y=["Ылғалдылық (%)", "Топырақ ылғалдылығы (%)"], title="Ылғалдылық көрсеткіштері", barmode='group')
+fig_hum = px.line(df, x="Уақыт", y=["Ылғалдылық (%)", "Топырақ ылғалдылығы (%)"], title="Ылғалдылық көрсеткіштері", )
 st.plotly_chart(fig_hum, use_container_width=True)
 
 st.markdown("---")
