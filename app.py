@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import time
 import hashlib
+import random  # <--- Осы жол міндетті түрде болуы керек!
 
 # --- [1] АРХИТЕКТУРА ЖӘНЕ CONFIG ---
 st.set_page_config(page_title="EcoGrow Industrial OS", layout="wide")
@@ -18,7 +19,7 @@ def check_password():
         st.subheader("🔐 Кіру жүйесі")
         pwd = st.text_input("Құпия сөзді енгізіңіз:", type="password")
         if st.button("Кіру"):
-            if pwd == "admin123": # Мысал үшін
+            if pwd == "admin123":
                 st.session_state.password_correct = True
                 st.rerun()
             else:
@@ -26,7 +27,7 @@ def check_password():
         return False
     return True
 
-# --- [2] ДЕРЕКТЕРДІ БАСҚАРУ ЖӘНЕ SQL ИМИТАЦИЯСЫ ---
+# --- [2] ДЕРЕКТЕРДІ БАСҚАРУ ---
 class DatabaseEngine:
     def get_logs(self):
         return pd.DataFrame({
@@ -48,7 +49,6 @@ def render_dashboard(db):
     st.title("🌱 EcoGrow Enterprise | Industrial Control OS")
     data = db.get_sensor_data()
     
-    # Метрикалар
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Температура", f"{data['temp']}°C", "0.2°")
     c2.metric("Ылғалдылық", f"{data['hum']}%", "-1.1%")
@@ -57,7 +57,6 @@ def render_dashboard(db):
     
     st.markdown("---")
     
-    # Табтар жүйесі
     t1, t2, t3, t4 = st.tabs(["📊 Live Data", "📈 Analytics", "⚠️ System Logs", "🤖 AI Auditor"])
     
     with t1:
@@ -88,16 +87,12 @@ def main():
     
     db = DatabaseEngine()
     
-    # Sidebar
     st.sidebar.title("🛠️ Settings")
     st.sidebar.subheader("Active Modules")
     st.sidebar.checkbox("AI Predictor", value=True)
     st.sidebar.checkbox("Auto-Irrigation", value=True)
-    st.sidebar.checkbox("Emergency Shutdown", value=False)
     
     render_dashboard(db)
 
 if __name__ == "__main__":
     main()
-st.markdown("---")
-st.caption("Industrial System V4.0.0 | Enterprise Edition | Secure Connection Active")
