@@ -4,111 +4,101 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-import time
 import random
+import time
 
-# --- [1] КОНФИГУРАЦИЯ ЖӘНЕ ПАРАМЕТРЛЕР ---
-st.set_page_config(page_title="EcoGrow Industrial Enterprise", layout="wide")
+# --- 1. CONFIGURATION & STYLE (Enterprise Grade) ---
+st.set_page_config(page_title="EcoGrow Industrial AI", layout="wide", page_icon="🌱")
 
-# Жүйеге арналған CSS (Кәсіби қараңғы тема)
+# Көзді ауыртпайтын, заманауи "Dark Mode" стилі
 st.markdown("""
     <style>
-    .stApp { background-color: #020617; color: #f8fafc; }
-    .metric-card { background: #0f172a; padding: 15px; border-radius: 12px; border: 1px solid #334155; }
-    .alert-box { border-left: 5px solid #ef4444; background: #450a0a; padding: 10px; margin-bottom: 10px; }
+    .stApp { background-color: #020617; color: #f1f5f9; }
+    .card { background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .alert-crit { border-left: 5px solid #ef4444; background: #450a0a; padding: 10px; }
+    .metric-val { font-size: 28px; font-weight: bold; color: #38bdf8; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- [2] КӘСІПОРЫНДЫҚ АРХИТЕКТУРА (DATA & LOGIC) ---
-class SystemEngine:
-    def __init__(self):
-        self.start_time = datetime.now()
-        
-    def fetch_telemetry(self):
-        """IoT датчиктерінен деректерді имитациялау"""
+# --- 2. ADVANCED DATA ENGINE (Backend logic) ---
+class TelemetryManager:
+    """Датчиктерді басқару және имитациялау модулі"""
+    @staticmethod
+    def get_realtime_data():
         return {
-            "temp": round(random.uniform(22, 29), 1),
-            "humidity": round(random.uniform(45, 65), 1),
-            "soil_ph": round(random.uniform(6.0, 7.2), 2),
-            "co2_level": random.randint(400, 800),
-            "power_usage": round(random.uniform(10, 50), 2)
+            "temp": round(random.uniform(22, 28), 1),
+            "hum": round(random.uniform(40, 60), 1),
+            "soil": round(random.uniform(30, 50), 1),
+            "co2": random.randint(400, 900),
+            "energy": round(random.uniform(5, 20), 2)
         }
 
-    def get_historical_data(self):
+    @staticmethod
+    def get_historical_df():
         days = 30
-        data = pd.DataFrame({
+        return pd.DataFrame({
             "Date": [datetime.now() - timedelta(days=i) for i in range(days)],
-            "Performance": np.random.uniform(85, 99, days),
-            "Energy": np.random.uniform(100, 200, days)
+            "Yield_Efficiency": np.random.uniform(85, 99, days),
+            "Power_Usage": np.random.uniform(100, 300, days)
         })
-        return data
 
-# --- [3] ИНТЕРФЕЙС ЖӘНЕ МОДУЛЬДЕР ---
-class UIManager:
-    def __init__(self):
-        self.engine = SystemEngine()
+# --- 3. DASHBOARD COMPONENTS ---
+def sidebar_menu():
+    st.sidebar.title("🔐 Control Panel")
+    role = st.sidebar.selectbox("Access Role", ["Admin", "Operator", "Analyst"])
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("Hardware Diagnostics")
+    for sensor in ["Node_A", "Node_B", "Node_C"]:
+        status = random.choice(["OK", "WARN", "CRIT"])
+        st.sidebar.write(f"{sensor}: {'✅' if status=='OK' else '⚠️'}")
+    return role
 
-    def render_sidebar(self):
-        st.sidebar.title("🔐 Enterprise Control")
-        self.role = st.sidebar.selectbox("User Role", ["Admin", "Technician", "Analyst"])
-        st.sidebar.markdown("---")
-        st.sidebar.subheader("Sensor Cluster Health")
-        for node in ["Cluster_A", "Cluster_B", "Cluster_C"]:
-            st.sidebar.write(f"{node}: **Active** ✅")
-        if st.sidebar.button("System Reboot"):
-            st.warning("Rebooting all IoT nodes...")
-
-    def render_dashboard(self):
-        st.title("🌱 EcoGrow Industrial Dashboard")
-        
-        # KPI ROW
-        telemetry = self.engine.fetch_telemetry()
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Temperature", f"{telemetry['temp']}°C", "+0.2°")
-        c2.metric("Humidity", f"{telemetry['humidity']}%", "-0.5%")
-        c3.metric("Soil pH", f"{telemetry['soil_ph']}", "Stable")
-        c4.metric("CO2 Level", f"{telemetry['co2_level']} ppm", "+12")
-
-        # ANALYTICS TAB
-        tabs = st.tabs(["📊 Performance", "📋 Historical Data", "⚙️ Hardware Config", "📑 Reports"])
-        
-        with tabs[0]:
-            st.subheader("System Performance Trend")
-            df = self.engine.get_historical_data()
-            fig = px.line(df, x="Date", y="Performance", template="plotly_dark")
-            st.plotly_chart(fig, use_container_width=True)
-            
-        with tabs[1]:
-            st.subheader("Raw Data Export")
-            st.dataframe(df, use_container_width=True)
-            if st.button("Export to CSV"):
-                st.info("Generating report...")
-
-        with tabs[2]:
-            st.subheader("Controller Configuration")
-            col_a, col_b = st.columns(2)
-            col_a.slider("Ventilation Speed", 0, 100, 45)
-            col_b.slider("Irrigation Timer (min)", 1, 60, 15)
-
-        with tabs[3]:
-            st.subheader("Automated Reports")
-            st.write("Generate weekly maintenance reports based on sensor performance.")
-            if st.button("Generate PDF Report"):
-                st.success("Report stored in /exports/weekly_report.pdf")
-
-# --- [4] НЕГІЗГІ ЛОГИКА (БҰЛ ЖЕРДЕ 500 ЖОЛДЫҢ БОЛУЫ ҚАЖЕТ БОЛСА, 
-# БАРЛЫҚ ВАЛИДАЦИЯЛАР МЕН AI ЛОГИКАНЫ ОСЫ ЖЕРГЕ КЕҢЕЙТЕМІЗ) ---
-
-def run_application():
-    ui = UIManager()
-    ui.render_sidebar()
-    ui.render_dashboard()
+def main_dashboard():
+    tm = TelemetryManager()
+    data = tm.get_realtime_data()
     
-    # Қосымша жүйелік логиканы осы жерге кеңейту арқылы 
-    # кодты қажетті деңгейге жеткізуге болады.
-    st.markdown("---")
-    st.caption("Industrial System V.4.0.2 | Secure Connection: Enabled")
-
-if __name__ == "__main__":
-    run_application()
+    st.title("🌱 EcoGrow Enterprise | Industrial IoT System")
     
+    # KPI Row
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Temperature", f"{data['temp']}°C", "Stable")
+    c2.metric("Humidity", f"{data['hum']}%", "-1.2%")
+    c3.metric("Soil Moisture", f"{data['soil']}%", "+2.1%")
+    c4.metric("CO2 Level", f"{data['co2']} ppm", "+15")
+
+    # Tabs for Organization
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Live Analytics", "📉 Performance Trends", "⚙️ Hardware Config", "🤖 AI Auditor"])
+
+    with tab1:
+        st.subheader("Real-time Telemetry Stream")
+        chart_data = pd.DataFrame(np.random.randn(20, 3), columns=["Temp", "Hum", "Soil"])
+        st.line_chart(chart_data)
+
+    with tab2:
+        st.subheader("30-Day Efficiency Report")
+        df = tm.get_historical_df()
+        fig = px.area(df, x="Date", y="Yield_Efficiency", template="plotly_dark")
+        st.plotly_chart(fig, use_container_width=True)
+
+    with tab3:
+        st.subheader("Hardware Actuator Settings")
+        col_x, col_y = st.columns(2)
+        vent_speed = col_x.slider("Ventilation Speed (%)", 0, 100, 45)
+        pump_timer = col_y.slider("Irrigation Cycle (min)", 5, 60, 15)
+        if st.button("Apply Configuration"):
+            st.success("New parameters synced with IoT Controllers.")
+
+    with tab4:
+        st.subheader("AI System Diagnostics")
+        st.info("AI Analysis: Sector 4 requires 15% more irrigation due to soil compaction.")
+        if st.button("Run Deep System Scan"):
+            with st.spinner("Analyzing all sensor arrays..."):
+                time.sleep(2)
+                st.success("Scan complete. No hardware failures detected.")
+
+# --- 4. EXECUTION ---
+role = sidebar_menu()
+main_dashboard()
+
+st.markdown("---")
+st.caption("Industrial System V4.0.0 | Enterprise Edition | Secure Connection Active")
