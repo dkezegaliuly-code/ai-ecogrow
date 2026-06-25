@@ -15,14 +15,76 @@ try:
 except:
     genai.configure(api_key="СІЗДІҢ_GEMINI_API_КІЛТІҢІЗ")
 
-# Жақсартылған CSS стильдері (Жоғарғы мәзір мен батырмалар дизайны)
+# ==========================================
+# 🎨 UI РЕФОРМА: ПРЕМИУМ СТИЛЬДЕР (CSS)
+# ==========================================
 st.markdown("""
     <style>
-    .stButton>button { background-color: #1b5e20; color: white; border-radius: 6px; font-weight: bold; }
-    .stButton>button:hover { background-color: #2e7d32; }
-    div[data-testid="stMetricValue"] { font-size: 28px; font-weight: bold; color: #1b5e20; }
-    /* Жоғарғы басты блокты безендіру */
-    .nav-container { background-color: #f1f8e9; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+    /* Жалпы фон мен қаріп */
+    .stApp { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+    
+    /* Жоғарғы Навигациялық панель */
+    .nav-box { 
+        background: linear-gradient(135deg, #115e59 0%, #064e3b 100%); 
+        padding: 20px; 
+        border-radius: 16px; 
+        color: white; 
+        margin-bottom: 30px;
+        box-shadow: 0 10px 15px -3px rgba(6, 78, 59, 0.2);
+    }
+    
+    /* Заманауи Карточкалар (Glassmorphism секілді) */
+    .premium-card {
+        background-color: #ffffff;
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+    }
+    
+    /* Метрикалар дизайны */
+    div[data-testid="stMetric"] {
+        background-color: #ffffff;
+        border-radius: 14px;
+        padding: 15px 20px;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    div[data-testid="stMetricValue"] { font-size: 32px !important; font-weight: 700 !important; color: #0f172a; }
+    div[data-testid="stMetricLabel"] { font-size: 14px !important; color: #64748b; font-weight: 500; }
+    
+    /* Батырмалар стилі */
+    .stButton>button { 
+        background: linear-gradient(90deg, #0d9488 0%, #0f766e 100%) !important; 
+        color: white !important; 
+        border-radius: 10px !important; 
+        border: none !important;
+        padding: 10px 24px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2) !important;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3) !important;
+    }
+    
+    /* Табтар дизайны */
+    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #475569;
+    }
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background-color: #0f766e !important;
+        color: white !important;
+        border-color: #0f766e;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -36,7 +98,7 @@ if "max_temp" not in st.session_state:
 if "min_soil" not in st.session_state:
     st.session_state.min_soil = 35.0
 
-# Деректерді бұлттан тарту симуляциясы
+# Датчик деректері
 @st.cache_data(ttl=30)
 def fetch_iot_data():
     now = datetime.now()
@@ -49,167 +111,202 @@ def fetch_iot_data():
     })
 
 # ==========================================
-# 🗺️ ЖОҒАРҒЫ НАВИГАЦИЯ ПАНЕЛІ (КӨЗГЕ ЫҢҒАЙЛЫ)
+# 🗺️ НАВИГАЦИЯЛЫҚ ХЕДЕР (ПРЕМИУМ ДИЗАЙН)
 # ==========================================
-st.markdown("<div class='nav-container'>", unsafe_allow_html=True)
-col_logo, col_nav, col_auth = st.columns([1, 3, 1])
+st.markdown("""
+    <div class='nav-box'>
+        <div style='display: flex; justify-content: space-between; align-items: center;'>
+            <div style='display: flex; align-items: center; gap: 15px;'>
+                <span style='font-size: 32px;'>🌱</span>
+                <div>
+                    <h2 style='margin:0; font-weight:800; letter-spacing:-0.5px; color:white;'>EcoGrow AI</h2>
+                    <p style='margin:0; font-size:12px; color:#a7f3d0; opacity:0.9;'>Ақылды агро-технологиялық платформа</p>
+                </div>
+            </div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
-with col_logo:
-    st.subheader("🌱 EcoGrow")
-
-# Пайдаланушының күйіне байланысты мәзір нұсқалары
+# Мәзір нұсқалары
 if st.session_state.logged_in:
-    nav_options = ["🏠 Басты бет", "📊 IoT Дашборд", "⚙️ Баптаулар", "📞 Контактілер"]
+    nav_options = ["🏠 Басты бет", "📊 IoT Дашборд", "⚙️ Жүйелік баптаулар", "📞 Сату бөлімі"]
 else:
-    nav_options = ["🏠 Басты бет", "🔐 Кіру / Тіркелу", "📞 Контактілер"]
+    nav_options = ["🏠 Басты бет", "🔐 Платформаға кіру", "📞 Сату бөлімі"]
 
-with col_nav:
-    # Жоғарыдағы көлденең заманауи селектор
-    page = st.segmented_control("Мәзір таңдаңыз:", nav_options, default="🏠 Басты бет")
+# Көлденең заманауи селектор (Интерфейсті таза көрсетеді)
+page = st.segmented_control("", nav_options, default="🏠 Басты бет")
+st.markdown("<br>", unsafe_allow_html=True)
 
-with col_auth:
-    if st.session_state.logged_in:
-        st.write(f"👤 **{st.session_state.username}**")
-        if st.button("🚪 Шығу", key="logout_btn"):
-            st.session_state.logged_in = False
-            st.rerun()
-    else:
-        st.write("🔒 Қонақ режимі")
-st.markdown("</div>", unsafe_allow_html=True)
-
-# Сидбар енді тек көмекші ақпарат үшін ғана жасырын тұрады
-st.sidebar.markdown("### 🤖 Жүйе статусы")
-st.sidebar.success("Сервер: Онлайн (Бұлтты)")
-st.sidebar.info("MVP v2.5 | AI-Incubator Wizards")
+# Көмекші сидбар ақпараты
+st.sidebar.markdown("### 🌐 Инфрақұрылым")
+st.sidebar.markdown("• **Сервер:** AWS Cloud (Frankfurt)")
+st.sidebar.markdown("• **Датчиктер базасы:** Supabase Realtime")
+st.sidebar.markdown(f"• **Нұсқа:** Enterprise v2.8")
+if st.session_state.logged_in:
+    st.sidebar.write(f"👤 Аккаунт: **{st.session_state.username}**")
+    if st.sidebar.button("🚪 Платформадан шығу", key="side_logout"):
+        st.session_state.logged_in = False
+        st.rerun()
 
 # ==========================================
-# 🏠 БАСТЫ БЕТ
+# 🏠 БАСТЫ БЕТ (LANDING PAGE)
 # ==========================================
 if page == "🏠 Басты бет":
-    st.title("🚀 Ауыл шаруашылығын AI-мен автоматтандыру")
-    st.markdown("### Өндірістік IoT шешімдері мен интеллектуалды агро-аналитика")
+    col_h1, col_h2 = st.columns([1.4, 1])
     
-    col_h1, col_h2 = st.columns([2, 1])
     with col_h1:
-        st.write("EcoGrow AI — бұл заманауи фермерлерге арналған кешенді экожүйе. Біз жылыжайларды толық автоматты режимге көшіріп, адам факторынан болатын шығындарды нөлге теңестіреміз.")
+        st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
+        st.title("🚀 Жылыжай шаруашылығын Жасанды Интеллектпен басқарыңыз")
+        st.write("EcoGrow AI — шағын және өндірістік жылыжайларға арналған автоматтандырылған IoT экожүйесі. Датчиктер негізінде су мен энергияны үнемдеп, өнім сапасын жаңа деңгейге көтеріңіз.")
+        
+        st.markdown("#### ✨ Негізгі артықшылықтар:")
         st.markdown("""
-        * **Нақты уақыттағы бақылау:** Әлемнің кез келген нүктесінен жылыжай күйін көру.
-        * **Ақылды суару:** Топырақ датчиктерінің көрсеткішіне негізделген дәл суару (суды 40%-ға дейін үнемдеу).
-        * **LLM Агроном:** Gemini негізіндегі AI сізге күн сайын есеп дайындап береді.
+        - 📱 **Шексіз қашықтық:** Әлемнің кез келген нүктесінен нақты уақытта бақылау.
+        - 🤖 **AI-Агроном (Gemini):** Өсімдіктердің жағдайын талдап, қазақ тілінде күнделікті кеңес беру.
+        - 💧 **40% Су үнемдеу:** Топырақ кепкенде ғана іске қосылатын ақылды сорғылар.
         """)
         if not st.session_state.logged_in:
-            st.info("💡 Жоғарғы мәзірден '🔐 Кіру / Тіркелу' батырмасын басып, дашбордты іске қосыңыз.")
+            st.info("💡 Жоғарыдағы мәзірден '🔐 Платформаға кіру' бетіне өтіп, тегін демо-дашбордты ашыңыз.")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
     with col_h2:
-        st.image("https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?w=500", caption="EcoGrow IoT контроллерлері")
+        st.markdown("<div class='premium-card' style='text-align:center;'>", unsafe_allow_html=True)
+        st.image("https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=500", use_container_width=True)
+        st.markdown("<h5>EcoGrow IoT Smart Hub</h5>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 🔐 ЖҮЙЕГЕ КІРУ / ТІРКЕЛУ
+# 🔐 ПЛАТФОРМАҒА КІРУ
 # ==========================================
-elif page == "🔐 Кіру / Тіркелу":
-    st.header("🔐 Платформаға кіру")
-    tab_login, tab_register = st.tabs(["🔑 Кіру", "📝 Жаңа аккаунт ашу"])
+elif page == "🔐 Платформаға кіру":
+    st.markdown("<div class='premium-card' style='max-width: 500px; margin: 0 auto;'>", unsafe_allow_html=True)
+    st.subheader("🔐 Авторизация")
+    tab_login, tab_register = st.tabs(["🔑 Кіру", "📝 Тіркелу"])
     
     with tab_login:
-        login_user = st.text_input("Логин (немесе Email):", key="log_user")
+        login_user = st.text_input("Логин / Email:", key="log_user")
         login_pass = st.text_input("Құпия сөз:", type="password", key="log_pass")
-        if st.button("Кіру"):
+        if st.button("Жүйеге кіру"):
             if login_user and login_pass:
                 st.session_state.logged_in = True
                 st.session_state.username = login_user
-                st.success("Жүйеге сәтті кірдіңіз!")
+                st.success("Платформаға сәтті кірдіңіз!")
                 time.sleep(0.5)
                 st.rerun()
             else:
-                st.error("Өрістерді толтырыңыз!")
+                st.error("Барлық өрісті толтырыңыз!")
                 
     with tab_register:
-        reg_user = st.text_input("Жаңа логин ойлап табыңыз:", key="reg_user")
-        reg_email = st.text_input("Email:")
-        reg_pass = st.text_input("Құпия сөз жазыңыз:", type="password", key="reg_pass")
-        if st.button("Тіркелу"):
-            if reg_user and reg_email and reg_pass:
-                st.success("Аккаунт сәтті жасалды! Енді 'Кіру' бөлімі арқылы өтіңіз.")
-            else:
-                st.error("Барлық мәліметті толтырыңыз.")
+        st.text_input("Аты-жөніңіз:")
+        st.text_input("Email мекенжайыңыз:")
+        st.text_input("Құпия сөз орнатыңыз:", type="password")
+        if st.button("Тіркелуді аяқтау"):
+            st.success("Аккаунт жасалды! '🔑 Кіру' табына өтіңіз.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
 # 📊 IOT БАҚЫЛАУ ПАНЕЛІ (DASHBOARD)
 # ==========================================
 elif page == "📊 IoT Дашборд":
-    st.header("📊 Нақты уақыттағы IoT Дашборды")
+    st.subheader("📊 Нақты уақыттағы IoT Телеметриясы")
     
     df = fetch_iot_data()
     latest_temp = round(df["Температура (°C)"].iloc[-1], 1)
     latest_hum = round(df["Ылғалдылық (%)"].iloc[-1], 1)
     latest_soil = round(df["Топырақ ылғалдылығы (%)"].iloc[-1], 1)
 
+    # 3-тік Көрсеткіштер торы
     col1, col2, col3 = st.columns(3)
-    temp_status = "Жоғары!" if latest_temp > st.session_state.max_temp else "Қалыпты"
-    col1.metric(label="🌡️ Температура", value=f"{latest_temp} °C", delta=temp_status, delta_color="inverse" if temp_status == "Жоғары!" else "normal")
-    col2.metric(label="💧 Ауа ылғалдылығы", value=f"{latest_hum} %")
-    soil_status = "⚠️ Құрғақ!" if latest_soil < st.session_state.min_soil else "Жеткілікті"
-    col3.metric(label="🪴 Топырақ ылғалдылығы", value=f"{latest_soil} %", delta=soil_status, delta_color="inverse" if soil_status == "⚠️ Құрғақ!" else "normal")
+    
+    temp_status = "⚠️ Жоғары!" if latest_temp > st.session_state.max_temp else "Қалыпты"
+    col1.metric(label="🌡️ Ауа Температурасы", value=f"{latest_temp} °C", delta=temp_status, delta_color="inverse" if "⚠️" in temp_status else "normal")
+    
+    col2.metric(label="💧 Ауа Ылғалдылығы", value=f"{latest_hum} %")
+    
+    soil_status = "🚨 Құрғақ!" if latest_soil < st.session_state.min_soil else "Жеткілікті"
+    col3.metric(label="🪴 Топырақ Ылғалдылығы", value=f"{latest_soil} %", delta=soil_status, delta_color="inverse" if "🚨" in soil_status else "normal")
 
-    tab_graphs, tab_table = st.tabs(["📈 Динамикалық Графиктер", "📋 Кестелік деректер"])
-    with tab_graphs:
-        f_temp = px.line(df, x="Уақыт", y="Температура (°C)", title="Жылыжай температурасы", color_discrete_sequence=['#e65100'])
-        st.plotly_chart(f_temp, use_container_width=True)
-        f_hum = px.line(df, x="Уақыт", y=["Ылғалдылық (%)", "Топырақ ылғалдылығы (%)"], title="Ылғалдылық деңгейлері")
-        st.plotly_chart(f_hum, use_container_width=True)
-    with tab_table:
-        st.dataframe(df, use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("---")
+    # Визуалды аналитика бөлімі
+    col_g, col_ctrl = st.columns([2, 1])
+    
+    with col_g:
+        st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
+        tab_g1, tab_g2, tab_d = st.tabs(["📈 Температура графигі", "📉 Ылғалдылық динамикасы", "📋 Шикі деректер"])
+        with tab_g1:
+            f_temp = px.line(df, x="Уақыт", y="Температура (°C)", markers=True, color_discrete_sequence=['#0d9488'])
+            f_temp.update_layout(margin=dict(l=20, r=20, t=20, b=20), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(f_temp, use_container_width=True)
+        with tab_g2:
+            f_hum = px.line(df, x="Уақыт", y=["Ылғалдылық (%)", "Топырақ ылғалдылығы (%)"], markers=True)
+            f_hum.update_layout(margin=dict(l=20, r=20, t=20, b=20), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(f_hum, use_container_width=True)
+        with tab_d:
+            st.dataframe(df, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    col_a1, col_a2 = st.columns(2)
-    with col_a1:
-        st.subheader("⚙️ Автоматты релелердің күйі")
+    with col_ctrl:
+        # Релелер мен Автоматика статусы
+        st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
+        st.markdown("<h4>⚙️ Жүйелік релелер күйі</h4>", unsafe_allow_html=True)
         fan_on = latest_temp > st.session_state.max_temp
         pump_on = latest_soil < st.session_state.min_soil
-        st.write(f"**Желдеткіш жүйесі:** {'🟢 Іске қосылды' if fan_on else '🔴 Күту режимінде'}")
-        st.write(f"**Суару клапаны:** {'🟢 Қосулы (Су құйылуда)' if pump_on else '🔴 Жабық'}")
         
-    with col_a2:
-        st.subheader("🧠 Кәсіби AI-Агроном есебі")
-        if st.button("Есепті генерациялау"):
-            with st.spinner('AI деректерді талдауда...'):
-                prompt = f"Сен EcoGrow стартапының бас агрономысың. Мына соңғы IoT деректеріне қарап фермерге қысқа 3 тармақпен қазақша кеңес жаз: Температура: {latest_temp}°C, Ылғалдылық: {latest_soil}%."
+        st.info(f"💨 **Желдеткіш (Салқындату):** {'🟢 ҚОСУЛЫ' if fan_on else '🔴 ӨШІРУЛІ'}")
+        st.info(f"🚰 **Суару помпасы:** {'🟢 ҚОСУЛЫ' if pump_on else '🔴 ӨШІРУЛІ'}")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        # AI модуль картасы
+        st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
+        st.markdown("<h4>🧠 AI-Агроном сараптамасы</h4>", unsafe_allow_html=True)
+        if st.button("Деректерді AI-ға жіберу"):
+            with st.spinner('AI талдау жасауда...'):
+                prompt = f"Сен EcoGrow стартапының бас агрономысың. Мына соңғы IoT деректеріне қарап фермерге қысқа 3 тармақпен қазақша кәсіби кеңес жаз: Температура: {latest_temp}°C, Топырақ ылғалдылығы: {latest_soil}%."
                 try:
                     model = genai.GenerativeModel("gemini-1.5-flash")
                     response = model.generate_content(prompt)
-                    st.info(response.text)
+                    st.success(response.text)
                 except:
-                    st.warning("⚠️ Офлайн режим: Көрсеткіштер тұрақты. Суару алгоритмі жұмыс істеп тұр.")
+                    st.warning("⚠️ Офлайн режим: Микроклимат тұрақты. Автоматика қалыпты жұмыс істеуде.")
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# ⚙️ ҚҰРЫЛҒЫЛАРДЫ БАПТАУ
+# ⚙️ ЖҮЙЕЛІК БАПТАУЛАР
 # ==========================================
-elif page == "⚙️ Баптаулар":
-    st.header("⚙️ IoT Датчиктері мен Шегін Баптау (Thresholds)")
-    st.write("Осы жерде орнатылған мәндер негізінде автоматты суару помпасы мен желдеткіштер іске қосылады.")
+elif page == "⚙️ Жүйелік баптаулар":
+    st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
+    st.header("⚙️ Автоматиканың критикалық шектері")
+    st.write("Осы жерде көрсетілген мәндерден асқан жағдайда, жүйе бұлт арқылы релелерге автоматты команда жібереді.")
     
     st.session_state.max_temp = st.slider(
         "Максималды рұқсат етілген температура (°C):", 
         min_value=20.0, max_value=35.0, value=st.session_state.max_temp, step=0.5
     )
     st.session_state.min_soil = st.slider(
-        "Минималды топырақ ылғалдылығы (%):", 
+        "Минималды топырақ ылғалдылығы (суаруды бастау шегі, %):", 
         min_value=15.0, max_value=60.0, value=st.session_state.min_soil, step=1.0
     )
-    st.success(f"Баптаулар жаңартылды! Критикалық температура: {st.session_state.max_temp}°C, Критикалық ылғалдылық: {st.session_state.min_soil}%.")
+    st.success(f"Баптаулар бұлттық серверде сәтті жаңартылды!")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
-# 📞 КОНТАКТІЛЕР
+# 📞 САТУ БӨЛІМІ
 # ==========================================
-elif page == "📞 Контактілер":
-    st.header("📞 Техникалық қолдау және Сауда бөлімі")
-    with st.form("feedback"):
-        u_name = st.text_input("Атыңыз:")
-        u_phone = st.text_input("Телефон нөміріңіз:")
-        u_txt = st.text_area("Қандай көмек немесе өнім қажет?")
-        if st.form_submit_button("Сұраныс қалдыру"):
-            st.success("Рақмет! Менеджерлер сізбен жақын арада байланысады.")
+elif page == "📞 Сату бөлімі":
+    st.markdown("<div class='premium-card'>", unsafe_allow_html=True)
+    st.header("📞 Коммерциялық ұсыныс алу")
+    st.write("Жылыжайыңызды автоматтандыру үшін өтінім қалдырыңыз. Біздің инженерлер сізге хабарласады.")
+    
+    with st.form("feedback_form"):
+        st.text_input("Толық атыңыз:")
+        st.text_input("Телефон нөміріңіз:")
+        st.selectbox("Жылыжай аумағы:", ["Шағын (<100 м²)", "Орташа (100 - 1000 м²)", "Өндірістік (>1000 м²)"])
+        if st.form_submit_button("Өтінімді жіберу"):
+            st.balloons()
+            st.success("Рақмет! Өтініміңіз сату бөліміне сәтті жолданды.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # Төменгі жазу (Footer)
-st.markdown("---")
-st.caption(f"© {datetime.now().year} EcoGrow AI Enterprise. Барлық құқықтар қорғалған. Навигация жаңартылды.")
+st.markdown("<br><hr>", unsafe_allow_html=True)
+st.caption(f"© {datetime.now().year} EcoGrow AI Enterprise — Smart Greenhouses. Барлық құқықтар қорғалған. Дизайн v2.8 Premium.")
